@@ -70,7 +70,7 @@ services:
       - DB_PORT=5432
       - DB_USERNAME=${DB_USERNAME:-postgres}
       - DB_PASSWORD=${DB_PASSWORD:-postgres}
-      - DB_NAME=${DB_NAME:-ecommerce}
+      - DB_NAME=tenant_db
     volumes:
       - .:/app
       - /app/node_modules
@@ -100,7 +100,7 @@ services:
       - DB_PORT=5432
       - DB_USERNAME=${DB_USERNAME:-postgres}
       - DB_PASSWORD=${DB_PASSWORD:-postgres}
-      - DB_NAME=${DB_NAME:-ecommerce}
+      - DB_NAME=product_db
     volumes:
       - .:/app
       - /app/node_modules

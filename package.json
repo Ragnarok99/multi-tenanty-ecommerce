@@ -28,18 +28,30 @@
     "docker:up:build": "docker-compose up --build",
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f",
-    "docker:ps": "docker-compose ps"
+    "docker:ps": "docker-compose ps",
+    "db:init": "./scripts/init-databases.sh",
+    "migration:tenant:generate": "typeorm-ts-node-commonjs migration:generate -d ./apps/tenant-service/src/typeorm.config.ts",
+    "migration:tenant:run": "typeorm-ts-node-commonjs migration:run -d ./apps/tenant-service/src/typeorm.config.ts",
+    "migration:tenant:revert": "typeorm-ts-node-commonjs migration:revert -d ./apps/tenant-service/src/typeorm.config.ts",
+    "migration:product:generate": "typeorm-ts-node-commonjs migration:generate -d ./apps/product-service/src/typeorm.config.ts",
+    "migration:product:run": "typeorm-ts-node-commonjs migration:run -d ./apps/product-service/src/typeorm.config.ts",
+    "migration:product:revert": "typeorm-ts-node-commonjs migration:revert -d ./apps/product-service/src/typeorm.config.ts",
+    "migration:run:all": "pnpm migration:tenant:run && pnpm migration:product:run"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/typeorm": "^11.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
+    "dotenv": "^17.2.3",
     "joi": "^18.0.2",
+    "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "typeorm": "^0.3.28"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
