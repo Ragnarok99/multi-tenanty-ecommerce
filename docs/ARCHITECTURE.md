@@ -457,10 +457,14 @@ multi-tenant-ecommerce/
 │   │   ├── src/
 │   │   │   ├── main.ts
 │   │   │   ├── api-gateway.module.ts
+│   │   │   ├── api-gateway.controller.ts
+│   │   │   ├── api-gateway.service.ts
 │   │   │   ├── guards/
-│   │   │   │   └── clerk-auth.guard.ts
+│   │   │   │   ├── index.ts
+│   │   │   │   └── clerk-auth.guard.ts      ← JWT validation
 │   │   │   └── middleware/
-│   │   │       └── tenant.middleware.ts
+│   │   │       ├── index.ts
+│   │   │       └── tenant.middleware.ts     ← Internal headers
 │   │   └── tsconfig.app.json
 │   │
 │   ├── tenant-service/
@@ -471,7 +475,7 @@ multi-tenant-ecommerce/
 │   │   │   │   ├── entities/
 │   │   │   │   └── migrations/
 │   │   │   ├── tenants/
-│   │   │   └── webhooks/
+│   │   │   └── webhooks/                    ← (future) Clerk webhooks
 │   │   └── typeorm.config.ts
 │   │
 │   └── product-service/
@@ -488,16 +492,35 @@ multi-tenant-ecommerce/
 ├── libs/
 │   └── common/
 │       └── src/
-│           ├── interfaces/
-│           ├── decorators/
-│           └── dto/
+│           ├── index.ts
+│           ├── auth/                        ← Authentication module
+│           │   ├── index.ts
+│           │   ├── interfaces/
+│           │   │   ├── index.ts
+│           │   │   └── auth.interfaces.ts   ← User, Tenant, Request types
+│           │   └── decorators/
+│           │       ├── index.ts
+│           │       ├── current-user.decorator.ts
+│           │       ├── current-tenant.decorator.ts
+│           │       ├── public.decorator.ts
+│           │       └── roles.decorator.ts
+│           └── database/
+│               ├── index.ts
+│               ├── base-tenant.entity.ts
+│               ├── data-source.factory.ts
+│               └── database.module.ts
+│
+├── docs/
+│   ├── ARCHITECTURE.md
+│   ├── DATABASE.md
+│   └── AUTHENTICATION.md                    ← New: Auth documentation
 │
 ├── scripts/
-│   └── create-databases.sh
+│   ├── init-databases.sh
+│   └── init-databases.sql
 │
 ├── docker-compose.yml
 ├── Dockerfile
-├── .env
 ├── .env.example
 ├── nest-cli.json
 ├── package.json
@@ -631,12 +654,17 @@ pnpm migration:run:all         # Run all migrations
 - [x] TypeORM + Entities
 - [x] Database migrations per service
 - [x] DatabaseModule centralizado (libs/common)
+- [x] **Clerk SDK integration** (`@clerk/backend`)
+- [x] **ClerkAuthGuard** (JWT validation with Clerk v2)
+- [x] **TenantMiddleware** (internal headers for microservices)
+- [x] **Auth decorators** (`@CurrentUser`, `@CurrentTenant`, `@Public`, `@Roles`)
+- [x] **AuthenticatedRequest interface** (typed Express request)
 
 ### 📋 To Implement
 
-- [ ] Clerk SDK integration
-- [ ] Authentication guards
-- [ ] Multi-tenant middleware
+- [ ] Clerk Webhooks (organization sync)
+- [ ] HTTP Proxy to microservices
+- [ ] Internal headers guard for microservices
 - [ ] Complete CRUD operations
 - [ ] Order Service
 - [ ] RabbitMQ + Events
@@ -658,6 +686,7 @@ pnpm migration:run:all         # Run all migrations
 ## Related Documentation
 
 - [📖 DATABASE.md](./DATABASE.md) - Database configuration, entities, and migrations
+- [🔐 AUTHENTICATION.md](./AUTHENTICATION.md) - Clerk integration, guards, and decorators
 
 ---
 
