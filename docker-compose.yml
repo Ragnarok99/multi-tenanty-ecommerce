@@ -1,0 +1,124 @@
+version: '3.8'
+
+services:
+  # ─────────────────────────────────────────────────────────────
+  # PostgreSQL Database
+  # ─────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: ecommerce-postgres
+    environment:
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-ecommerce}
+    ports:
+      - '${DB_PORT:-5432}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ecommerce-network
+
+  # ─────────────────────────────────────────────────────────────
+  # API Gateway (Public Entry Point)
+  # ─────────────────────────────────────────────────────────────
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+      args:
+        SERVICE_NAME: api-gateway
+    container_name: ecommerce-api-gateway
+    ports:
+      - '${API_GATEWAY_PORT:-3000}:${API_GATEWAY_PORT:-3000}'
+    environment:
+      - NODE_ENV=development
+      - API_GATEWAY_PORT=${API_GATEWAY_PORT:-3000}
+      - TENANT_SERVICE_URL=http://tenant-service:${TENANT_SERVICE_PORT:-3001}
+      - PRODUCT_SERVICE_URL=http://product-service:${PRODUCT_SERVICE_PORT:-3002}
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - tenant-service
+      - product-service
+    networks:
+      - ecommerce-network
+
+  # ─────────────────────────────────────────────────────────────
+  # Tenant Service
+  # ─────────────────────────────────────────────────────────────
+  tenant-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+      args:
+        SERVICE_NAME: tenant-service
+    container_name: ecommerce-tenant-service
+    ports:
+      - '${TENANT_SERVICE_PORT:-3001}:${TENANT_SERVICE_PORT:-3001}'
+    environment:
+      - NODE_ENV=development
+      - TENANT_SERVICE_PORT=${TENANT_SERVICE_PORT:-3001}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=${DB_USERNAME:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - DB_NAME=${DB_NAME:-ecommerce}
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+
+  # ─────────────────────────────────────────────────────────────
+  # Product Service
+  # ─────────────────────────────────────────────────────────────
+  product-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+      args:
+        SERVICE_NAME: product-service
+    container_name: ecommerce-product-service
+    ports:
+      - '${PRODUCT_SERVICE_PORT:-3002}:${PRODUCT_SERVICE_PORT:-3002}'
+    environment:
+      - NODE_ENV=development
+      - PRODUCT_SERVICE_PORT=${PRODUCT_SERVICE_PORT:-3002}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=${DB_USERNAME:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
+      - DB_NAME=${DB_NAME:-ecommerce}
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+
+# ─────────────────────────────────────────────────────────────
+# Networks
+# ─────────────────────────────────────────────────────────────
+networks:
+  ecommerce-network:
+    driver: bridge
+
+# ─────────────────────────────────────────────────────────────
+# Volumes
+# ─────────────────────────────────────────────────────────────
+volumes:
+  postgres_data:
