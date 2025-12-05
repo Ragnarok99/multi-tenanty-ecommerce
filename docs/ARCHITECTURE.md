@@ -628,11 +628,12 @@ pnpm migration:run:all         # Run all migrations
 - [x] Docker Compose configuration
 - [x] PostgreSQL container
 - [x] Environment configuration
+- [x] TypeORM + Entities
+- [x] Database migrations per service
+- [x] DatabaseModule centralizado (libs/common)
 
 ### 📋 To Implement
 
-- [ ] TypeORM + Entities
-- [ ] Database migrations per service
 - [ ] Clerk SDK integration
 - [ ] Authentication guards
 - [ ] Multi-tenant middleware
@@ -651,6 +652,12 @@ pnpm migration:run:all         # Run all migrations
 - [ ] Stripe integration
 - [ ] Admin dashboard
 - [ ] Analytics service
+
+---
+
+## Related Documentation
+
+- [📖 DATABASE.md](./DATABASE.md) - Database configuration, entities, and migrations
 
 ---
 
